@@ -2,6 +2,10 @@
 /**
  * @file custom Search API ranges Min/Max UI slider widget
  */
+
+unset($form['range-from']['#attributes']['disabled']);
+unset($form['range-to']['#attributes']['disabled']);
+
 ?>
 <?php print drupal_render($form['text-range']); ?>
 <div class="yui3-g">

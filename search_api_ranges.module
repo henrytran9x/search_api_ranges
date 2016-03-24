@@ -278,15 +278,20 @@ function search_api_ranges_forms($form_id, $args) {
  */
 function search_api_ranges_block_slider_view_form($form, &$form_state, $variables) {
   $form = array();
-
   // For compatibility with Search API ajax,
   // we generate the 'ajax target URL' as a hidden field.
   $params = drupal_get_query_parameters($_GET, array('q'));
+
   foreach ($variables['active_items'] as $key => $active_item) {
     if ($active_item['field alias'] == $variables['range_field']) {
       $pos = $active_item['pos'];
       unset($params['f'][$pos]);
     }
+    if(isset($active_item['value']))
+    {
+      list($price_from,$price_to) = explode(',',trim(preg_replace('/\s+/',',',(str_replace(array('[',']','TO','\r'),'', $active_item['value'])))));
+    }
+
   }
 
   // Get path or facetapi_pretty_paths.
@@ -315,14 +320,15 @@ function search_api_ranges_block_slider_view_form($form, &$form_state, $variable
     '#type' => 'textfield',
     '#title' => t('From'),
     '#size' => 10,
-    '#default_value' => $variables['from'],
+    '#default_value' => isset($price_from) ? $price_from : $variables['from'],
   );
   $form['range-slider'] = array('#markup' => '<div class="range-slider"></div>');
   $form['range-to'] = array(
     '#type' => 'textfield',
     '#title' => t('To'),
     '#size' => 10,
-    '#default_value' => $variables['to'],
+    '#default_value' => isset($price_to) ? $price_to : $variables['to'],
+
   );
   $form['range-min'] = array(
     '#type' => 'hidden',
@@ -358,7 +364,14 @@ function search_api_ranges_block_slider_view_form($form, &$form_state, $variable
  * Handle slider block submit
  */
 function search_api_ranges_block_slider_view_form_submit($form, &$form_state) {
-  $values = $form_state['values'];
+
+  if(isset($form_state['input']) && isset($form_state['input']['range-from']) && isset($form_state['input']['range-to']))
+  {
+    $values = $form_state['input'];
+  }
+  else {
+    $values = $form_state['values'];
+  }
   $range_field = $form_state['input']['range-field'];
 
   // Prepare params and existing filter $pos (if any)

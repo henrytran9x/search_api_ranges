@@ -11,6 +11,8 @@
  * @param array $variables
  */
 function theme_search_api_ranges_slider(array $variables) {
+  unset($variables['slider']['range-to']['#disabled']);
+  unset($variables['slider']['range-from']['#disabled']);
   $output = '';
   $output .= '<div class="search-api-ranges-widget">';
   $output .= render($variables['slider']);
